@@ -1,0 +1,7 @@
+C:\Users\Nikita\source\repos\Asm_byte\Asm_byte\bin\Debug\Asm_byte.exe.config
+C:\Users\Nikita\source\repos\Asm_byte\Asm_byte\bin\Debug\Asm_byte.exe
+C:\Users\Nikita\source\repos\Asm_byte\Asm_byte\bin\Debug\Asm_byte.pdb
+C:\Users\Nikita\source\repos\Asm_byte\Asm_byte\obj\Debug\Asm_byte.csprojAssemblyReference.cache
+C:\Users\Nikita\source\repos\Asm_byte\Asm_byte\obj\Debug\Asm_byte.csproj.CoreCompileInputs.cache
+C:\Users\Nikita\source\repos\Asm_byte\Asm_byte\obj\Debug\Asm_byte.exe
+C:\Users\Nikita\source\repos\Asm_byte\Asm_byte\obj\Debug\Asm_byte.pdb
