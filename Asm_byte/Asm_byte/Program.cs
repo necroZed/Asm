@@ -26,7 +26,7 @@ namespace Asm_byte
                     string command;
                     try
                     {
-                         command = line.Substring(0, line.IndexOf(" "));
+                        command = line.Substring(0, line.IndexOf(" "));
                     }
                     catch
                     {
@@ -142,13 +142,16 @@ namespace Asm_byte
                                 temp = line.Replace("JMP ", "");
                                 if (marks.ContainsKey(temp))
                                 {
-                                    adata.Add(1);
-                                    adata.Add(Convert.ToByte(counter - marks[temp] - 1));
+                                    int  r = marks[temp] - counter + 1;
+                                    string temp1 = Convert.ToString(r);
+                                    two = Get_two(temp1);
+                                    adata.Add(two[0]);
+                                    adata.Add(two[1]);
                                     marks.Remove(temp);
                                 }
                                 else
                                 {
-                                    marks.Add(temp, counter+1);
+                                    marks.Add(temp, counter + 1);
                                     adata.Add(0);
                                     adata.Add(0);
                                 }
@@ -162,16 +165,19 @@ namespace Asm_byte
                                 temp = temp.Replace("R", "");
                                 adata.Add(Get_byte(temp.Remove(1)));
                                 temp = temp.Remove(0, 2);
-                                counter = counter +2;
+                                counter = counter + 2;
                                 if (marks.ContainsKey(temp))
                                 {
-                                    adata.Add(1);
-                                    adata.Add(Convert.ToByte(counter - marks[temp] - 1));
+                                    int r = marks[temp] - counter + 1;
+                                    string temp1 = Convert.ToString(r);
+                                    two = Get_two(temp1);
+                                    adata.Add(two[0]);
+                                    adata.Add(two[1]);
                                     marks.Remove(temp);
                                 }
                                 else
                                 {
-                                    marks.Add(temp, counter+1);
+                                    marks.Add(temp, counter + 1);
                                     adata.Add(0);
                                     adata.Add(0);
                                 }
@@ -199,20 +205,23 @@ namespace Asm_byte
                                 adata.Add(13);
                                 break;
                             }
-                            
+
                     }
                 }
                 else
                 {
                     if (marks.ContainsKey(line.Replace(":", null)))
                     {
-                        adata[marks[line.Replace(":", null)]] = Convert.ToByte(counter - marks[line.Replace(":", null)] - 1);
+                        string tt = Convert.ToString(Convert.ToByte(counter - marks[line.Replace(":", null)] + 3));
+                        two = Get_two(tt);
+                        adata[marks[line.Replace(":", null)] -1] = two[0];
+                        adata[marks[line.Replace(":", null)]] = two[1];
                         //Console.WriteLine("Эта метка идет после команды, запишем её");
                         marks.Remove(line.Replace(":", null));
                     }
                     else
                     {
-                        marks.Add(line.Replace(":", null),counter);
+                        marks.Add(line.Replace(":", null), counter);
                         //Console.WriteLine($"Ага, тут у нас местка {line.Replace(":", null)}");
                     }
                 }
@@ -241,12 +250,10 @@ namespace Asm_byte
         }
         public static byte[] Get_two(string stroka)
         {
-            byte [] vozvr = new byte [2];
-            int vhod = Int32.Parse(stroka);
-            int first = vhod / 256;
-            int second = vhod % 256;
-            vozvr[1] = Convert.ToByte(first);
-            vozvr[0] = Convert.ToByte(second);
+            byte[] vozvr = new byte[2];
+            short vhod = Int16.Parse(stroka);
+            vozvr[0] = (byte)(vhod & 0xff);
+            vozvr[1] = (byte)((vhod & 0xff00) >> 8);
             return vozvr;
         }
     }
