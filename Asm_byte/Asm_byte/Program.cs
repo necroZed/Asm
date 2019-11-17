@@ -12,21 +12,72 @@ namespace Asm_byte
     {
         static void Main(string[] args)
         {
+            const ushort data_adr = 0x10;
+            const ushort code_adr = 0x8000;
             List<byte> adata = new List<byte>();
             byte[] two = new byte[2];
             Dictionary<string, int> marks = new Dictionary<string, int>();
-            int counter = 0;
+            Dictionary<string, int> data = new Dictionary<string, int>();
+            ushort code_size = 0;
+            ushort data_size = 0;
             string temp;
             string[] lines = File.ReadAllLines(args[0], System.Text.Encoding.Default);
-            foreach (string line in lines)
+            int inach = 0;
+            if (lines[inach] == ".data")
             {
-                Console.WriteLine(line);
-                if (line.Contains(":") == false)
+                inach++;
+                while (lines[inach] != ".code")
                 {
+                    Console.WriteLine(lines[inach]);
                     string command;
+                    command = lines[inach].Substring(lines[inach].IndexOf(" ") +1 , 2);
+                    switch (command)
+                    {
+                        case "db":
+                            {
+                                data.Add(lines[inach].Substring(0, lines[inach].IndexOf(" ")), data_adr + data_size + 1);
+                                if (lines[inach].Contains("?"))
+                                {
+                                    adata.Add(0);
+                                }
+                                else
+                                {
+                                    adata.Add(Convert.ToByte(lines[inach].Substring(lines[inach].LastIndexOf(" "))));
+                                }
+                                data_size++;
+                                break;
+                            }
+                        case "dw":
+                            {
+                                data.Add(lines[inach].Substring(0, lines[inach].IndexOf(" ")), data_adr + data_size + 1);
+                                if (lines[inach].Contains("?"))
+                                {
+                                    adata.Add(0);
+                                    adata.Add(0);
+                                }
+                                else
+                                {
+                                    two = Get_two(lines[inach].Substring(lines[inach].LastIndexOf(" ")));
+                                    adata.Add(two[0]);
+                                    adata.Add(two[1]);
+                                }
+                                data_size += 2;
+                                break;
+                            }
+                    }
+                    inach++;
+                }
+
+            }
+            for (int i = inach +1; i < lines.Length; i++)
+            {
+                string command;
+                Console.WriteLine(lines[i]);
+                if (lines[i].Contains(":") == false)
+                {
                     try
                     {
-                        command = line.Substring(0, line.IndexOf(" "));
+                        command = lines[i].Substring(0, lines[i].IndexOf(" "));
                     }
                     catch
                     {
@@ -37,112 +88,122 @@ namespace Asm_byte
                         case "ADD":
                             {
                                 adata.Add(0);
-                                temp = line.Replace("ADD ", "");
+                                temp = lines[i].Replace("ADD ", "");
                                 temp = temp.Replace("R", "");
                                 adata.Add(Get_byte(temp.Remove(1)));
                                 temp = temp.Remove(0, 2);
                                 adata.Add(Get_byte(temp));
-                                counter = counter + 3;
+                                code_size +=3;
                                 break;
                             }
                         case "SUB":
                             {
                                 adata.Add(1);
-                                temp = line.Replace("SUB ", "");
+                                temp = lines[i].Replace("SUB ", "");
                                 temp = temp.Replace("R", "");
                                 adata.Add(Get_byte(temp.Remove(1)));
                                 temp = temp.Remove(0, 2);
                                 adata.Add(Get_byte(temp));
-                                counter = counter + 3;
+                                code_size +=3;
                                 break;
                             }
                         case "MUL":
                             {
                                 adata.Add(2);
-                                temp = line.Replace("MUL ", "");
+                                temp = lines[i].Replace("MUL ", "");
                                 temp = temp.Replace("R", "");
                                 adata.Add(Get_byte(temp.Remove(1)));
                                 temp = temp.Remove(0, 2);
                                 adata.Add(Get_byte(temp));
-                                counter = counter + 3;
+                                code_size +=3;
                                 break;
                             }
                         case "DIV":
                             {
                                 adata.Add(3);
-                                temp = line.Replace("DIV ", "");
+                                temp = lines[i].Replace("DIV ", "");
                                 temp = temp.Replace("R", "");
                                 adata.Add(Get_byte(temp.Remove(1)));
                                 temp = temp.Remove(0, 2);
                                 adata.Add(Get_byte(temp));
-                                counter = counter + 3;
+                                code_size +=3;
                                 break;
                             }
                         case "MOVC":
                             {
                                 adata.Add(4);
-                                temp = line.Replace("MOVC ", "");
+                                temp = lines[i].Replace("MOVC ", "");
                                 temp = temp.Replace("R", "");
                                 adata.Add(Get_byte(temp.Remove(1)));
                                 temp = temp.Remove(0, 2);
                                 two = Get_two(temp);
                                 adata.Add(two[0]);
                                 adata.Add(two[1]);
-                                counter = counter + 4;
+                                code_size += 4;
                                 break;
                             }
                         case "MOV":
                             {
                                 adata.Add(5);
-                                temp = line.Replace("MOV ", "");
+                                temp = lines[i].Replace("MOV ", "");
                                 temp = temp.Replace("R", "");
                                 adata.Add(Get_byte(temp.Remove(1)));
                                 temp = temp.Remove(0, 2);
                                 adata.Add(Get_byte(temp));
-                                counter = counter + 3;
+                                code_size +=3;
                                 break;
                             }
                         case "LOAD":
                             {
                                 adata.Add(6);
-                                temp = line.Replace("LOAD ", "");
+                                temp = lines[i].Replace("LOAD ", "");
                                 temp = temp.Replace("R", "");
                                 adata.Add(Get_byte(temp.Remove(1)));
                                 temp = temp.Remove(0, 2);
-                                adata.Add(Get_byte(temp));
-                                counter = counter + 3;
+                                if (data.ContainsKey(temp))
+                                {
+                                    two = Get_two(Convert.ToString(data[temp]));
+                                    adata.Add(two[0]);
+                                    adata.Add(two[1]);
+                                }
+                                code_size +=4;
                                 break;
                             }
                         case "STOR":
                             {
                                 adata.Add(7);
-                                temp = line.Replace("STOR ", "");
+                                temp = lines[i].Replace("STOR ", "");
                                 temp = temp.Replace("R", "");
                                 adata.Add(Get_byte(temp.Remove(1)));
                                 temp = temp.Remove(0, 2);
-                                adata.Add(Get_byte(temp));
-                                counter = counter + 3;
+                                if (data.ContainsKey(temp))
+                                {
+                                    two = Get_two(Convert.ToString(data[temp]));
+                                    adata.Add(two[0]);
+                                    adata.Add(two[1]);
+                                }
+                                code_size +=4;
                                 break;
                             }
                         case "CMP":
                             {
                                 adata.Add(8);
-                                temp = line.Replace("CMP ", "");
+                                temp = lines[i].Replace("CMP ", "");
                                 temp = temp.Replace("R", "");
                                 adata.Add(Get_byte(temp.Remove(1)));
                                 temp = temp.Remove(0, 2);
                                 adata.Add(Get_byte(temp));
-                                counter = counter + 3;
+                                code_size +=3;
                                 break;
                             }
                         case "JMP":
                             {
                                 adata.Add(9);
-                                counter++;
-                                temp = line.Replace("JMP ", "");
+                                temp = lines[i].Replace("JMP ", "");
+                                code_size++;
                                 if (marks.ContainsKey(temp))
                                 {
-                                    int  r = marks[temp] - counter + 1;
+                                    int  r = marks[temp] - code_size + 1;
                                     string temp1 = Convert.ToString(r);
                                     two = Get_two(temp1);
                                     adata.Add(two[0]);
@@ -151,24 +212,24 @@ namespace Asm_byte
                                 }
                                 else
                                 {
-                                    marks.Add(temp, counter + 1);
+                                    marks.Add(temp, code_size);
                                     adata.Add(0);
                                     adata.Add(0);
                                 }
-                                counter = counter + 2;
+                                code_size +=2;
                                 break;
                             }
                         case "JMPC":
                             {
                                 adata.Add(10);
-                                temp = line.Replace("JMPC ", "");
+                                temp = lines[i].Replace("JMPC ", "");
                                 temp = temp.Replace("R", "");
                                 adata.Add(Get_byte(temp.Remove(1)));
                                 temp = temp.Remove(0, 2);
-                                counter = counter + 2;
+                                code_size +=2;
                                 if (marks.ContainsKey(temp))
                                 {
-                                    int r = marks[temp] - counter + 1;
+                                    int r = marks[temp] - code_size + 1;
                                     string temp1 = Convert.ToString(r);
                                     two = Get_two(temp1);
                                     adata.Add(two[0]);
@@ -177,27 +238,27 @@ namespace Asm_byte
                                 }
                                 else
                                 {
-                                    marks.Add(temp, counter + 1);
+                                    marks.Add(temp, code_size);
                                     adata.Add(0);
                                     adata.Add(0);
                                 }
-                                counter = counter + 2;
+                                code_size +=2;
                                 break;
                             }
                         case "PUSH":
                             {
                                 adata.Add(11);
-                                temp = line.Replace("PUSH R", "");
+                                temp = lines[i].Replace("PUSH R", "");
                                 adata.Add(Get_byte(temp));
-                                counter = counter + 2;
+                                code_size +=2;
                                 break;
                             }
                         case "POP":
                             {
                                 adata.Add(12);
-                                temp = line.Replace("POP R", "");
+                                temp = lines[i].Replace("POP R", "");
                                 adata.Add(Get_byte(temp));
-                                counter = counter + 2;
+                                code_size +=2;
                                 break;
                             }
                         case "HLT":
@@ -210,19 +271,19 @@ namespace Asm_byte
                 }
                 else
                 {
-                    if (marks.ContainsKey(line.Replace(":", null)))
+                    if (marks.ContainsKey(lines[i].Replace(":", null)))
                     {
-                        string tt = Convert.ToString(Convert.ToByte(counter - marks[line.Replace(":", null)] + 3));
+                        string tt = Convert.ToString(Convert.ToByte(code_size - marks[lines[i].Replace(":", null)]));
                         two = Get_two(tt);
-                        adata[marks[line.Replace(":", null)] -1] = two[0];
-                        adata[marks[line.Replace(":", null)]] = two[1];
+                        adata[marks[lines[i].Replace(":", null)]- 1] = two[0];
+                        adata[marks[lines[i].Replace(":", null)]] = two[1];
                         //Console.WriteLine("Эта метка идет после команды, запишем её");
-                        marks.Remove(line.Replace(":", null));
+                        marks.Remove(lines[i].Replace(":", null));
                     }
                     else
                     {
-                        marks.Add(line.Replace(":", null), counter);
-                        //Console.WriteLine($"Ага, тут у нас местка {line.Replace(":", null)}");
+                        marks.Add(lines[i].Replace(":", null), code_size);
+                        //Console.WriteLine($"Ага, тут у нас местка {lines[i].Replace(":", null)}");
                     }
                 }
             }
@@ -233,9 +294,14 @@ namespace Asm_byte
             else
             {
                 byte[] final = adata.ToArray<byte>();
-                using (FileStream fstream = new FileStream(@"a.out", FileMode.OpenOrCreate))
+                using (BinaryWriter fstream = new BinaryWriter(File.Open(@"a.out", FileMode.OpenOrCreate)))
                 {
-                    fstream.Write(final, 0, final.Length);
+                    fstream.Write(Encoding.ASCII.GetBytes("OSVM"));
+                    fstream.Write(data_adr);
+                    fstream.Write(data_size);
+                    fstream.Write(code_adr);
+                    fstream.Write(code_size);
+                    fstream.Write(final);
                     Console.WriteLine("Строки записаны в файл в виде байт-кода");
                 }
             }
@@ -243,6 +309,7 @@ namespace Asm_byte
         }
         public static byte Get_byte(string stroka)
         {
+            
             byte vozvr;
             int vhod = Int32.Parse(stroka) - 1;
             vozvr = Convert.ToByte(vhod);
@@ -251,9 +318,18 @@ namespace Asm_byte
         public static byte[] Get_two(string stroka)
         {
             byte[] vozvr = new byte[2];
-            short vhod = Int16.Parse(stroka);
-            vozvr[0] = (byte)(vhod & 0xff);
-            vozvr[1] = (byte)((vhod & 0xff00) >> 8);
+            try
+            {
+                short vhod = Int16.Parse(stroka);
+                vozvr[0] = (byte)(vhod & 0xff);
+                vozvr[1] = (byte)((vhod & 0xff00) >> 8);
+            }
+            catch
+            {
+                ushort vhod = UInt16.Parse(stroka);
+                vozvr[0] = (byte)(vhod & 0xff);
+                vozvr[1] = (byte)((vhod & 0xff00) >> 8);
+            }
             return vozvr;
         }
     }

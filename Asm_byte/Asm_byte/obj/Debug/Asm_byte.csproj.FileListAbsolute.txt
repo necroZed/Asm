@@ -9,6 +9,5 @@ D:\С# repos\Asm-master\Asm_byte\Asm_byte\bin\Debug\Asm_byte.exe.config
 D:\С# repos\Asm-master\Asm_byte\Asm_byte\bin\Debug\Asm_byte.exe
 D:\С# repos\Asm-master\Asm_byte\Asm_byte\bin\Debug\Asm_byte.pdb
 D:\С# repos\Asm-master\Asm_byte\Asm_byte\obj\Debug\Asm_byte.csprojAssemblyReference.cache
-D:\С# repos\Asm-master\Asm_byte\Asm_byte\obj\Debug\Asm_byte.csproj.CoreCompileInputs.cache
 D:\С# repos\Asm-master\Asm_byte\Asm_byte\obj\Debug\Asm_byte.exe
 D:\С# repos\Asm-master\Asm_byte\Asm_byte\obj\Debug\Asm_byte.pdb
